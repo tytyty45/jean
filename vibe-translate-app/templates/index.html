@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vibe Translate — แปลให้ถูกอารมณ์</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0f8;--card:#fff;--ink:#1b1f3b;--mute:#6a6f8f;--line:#dcdff0;--acc:#ff5d73;--acc2:#2bb3a0;--bub:#f4f5fc;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14162b;--card:#1e2140;--ink:#eceefb;--mute:#9aa0c7;--line:#31355e;--bub:#262a50}}
+:root[data-theme="dark"]{--bg:#14162b;--card:#1e2140;--ink:#eceefb;--mute:#9aa0c7;--line:#31355e;--bub:#262a50}
+*{box-sizing:inherit}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 "Noto Sans Thai",system-ui,sans-serif}
+#app{height:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;position:relative}
+header{padding:12px 16px 8px}
+h1{font:800 22px/1.1 "Bricolage Grotesque","Noto Sans Thai",sans-serif;margin:0 0 8px;letter-spacing:-.01em}
+.tabs{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:999px;border:1px solid var(--line)}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);font:600 14px "Noto Sans Thai";padding:7px 4px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+#log{flex:1;overflow-y:auto;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
+.empty{margin:auto;text-align:center;color:var(--mute);padding:20px}
+.empty b{display:block;font:800 26px/1.1 "Bricolage Grotesque","Noto Sans Thai";color:var(--ink);margin-bottom:6px}
+.m{max-width:86%;padding:9px 14px;border-radius:20px;word-break:break-word;white-space:pre-wrap}
+.me{align-self:flex-end;background:var(--acc);color:#fff;border-bottom-right-radius:6px}
+.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px;position:relative}
+.bot.main{border:2px solid var(--acc2);font-weight:500;font-size:18px}
+.bot .cp{margin-left:10px;vertical-align:middle}
+.cp{border:1px solid var(--line);background:var(--bub);color:var(--ink);border-radius:999px;padding:1px 10px;font:500 12px "Noto Sans Thai";cursor:pointer}
+.sm{font-size:14px;color:var(--mute)}
+.tag{font-size:12px;color:var(--mute);margin:0 0 2px 6px;align-self:flex-start}
+.warn{border-color:#e0a100}
+.alts{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;max-width:92%}
+.alts button{border:1px solid var(--line);background:var(--bub);color:var(--ink);border-radius:14px;padding:5px 11px;cursor:pointer;font:500 14px "Noto Sans Thai";text-align:left}
+.alts small{display:block;color:var(--mute);font-size:11px}
+.badge{display:inline-block;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;margin-right:6px}
+.l0{background:#8a8fb0}.l1{background:#2bb3a0}.l2{background:#e0a100}.l3{background:#e0334d}
+.dots span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--mute);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+@media (prefers-reduced-motion:reduce){.dots span{animation:none}}
+.err{align-self:center;color:#e0334d;font-size:14px;text-align:center;background:var(--card);padding:8px 16px;border-radius:12px;border:1px solid #e0334d}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 12px;border-radius:999px;font:500 14px "Noto Sans Thai";cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+footer{padding:8px 12px 12px;border-top:1px solid var(--line);background:var(--bg)}
+#opts{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;align-items:center}
+#opts select{flex:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:5px 8px;font:500 13px "Noto Sans Thai"}
+#opts .chip{flex:none;padding:4px 11px;font-size:13px}
+.hide{display:none!important}
+#bar{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;max-height:130px;min-height:44px;resize:none;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);font:500 17px/1.4 "Noto Sans Thai";padding:10px 16px;outline:0}
+#send{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:var(--acc);color:#fff;font-size:20px;cursor:pointer}
+#send:disabled{opacity:.5}
+:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+.priv{font-size:11px;color:var(--mute);text-align:center;margin:6px 0 0}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+<h1>Vibe Translate 💬</h1>
+<div class="tabs" role="tablist">
+<button role="tab" aria-selected="true" data-m="t">แปล</button>
+<button role="tab" aria-selected="false" data-m="d">ถอดความหมาย</button>
+<button role="tab" aria-selected="false" data-m="c">หลายภาษา</button>
+</div>
+</header>
+<div id="log" aria-live="polite"></div>
+<footer>
+<div id="opts"></div>
+<div id="bar">
+<textarea id="src" rows="1" placeholder="พิมพ์ข้อความ แล้วกด Enter..." aria-label="ข้อความ"></textarea>
+<button id="send" aria-label="ส่ง">➤</button>
+</div>
+<p class="priv">ไม่บันทึกประวัติ · ประมวลผลผ่านระบบ Backend</p>
+</footer>
+</div>
+
+<script>
+// ชี้ไปที่ Backend ภายในแอปพลิเคชันเดียวกัน
+const PROXY_URL = "/api/chat";
+
+const LANGS=["English 🇺🇸","日本語 Japanese 🇯🇵","한국어 Korean 🇰🇷","中文 Chinese 🇨🇳","Español Spanish 🇪🇸","ไทย Thai 🇹🇭","Türkçe Turkish 🇹🇷"];
+const STYLES=["Casual","Formal","Gaming","Romantic","Professional","Slang"];
+const AUD=["เพื่อน","แฟน","คนไม่สนิท","ผู้ใหญ่ / เจ้านาย","ลูกค้า"];
+const MOOD=["ปกติ","ดีใจ","เขิน / หวาน","ประชด","หงุดหงิด","เศร้า","ขอโทษ"];
+const EX={t:["คิดถึงแกว่ะ วันนี้เป็นไงบ้าง","โอเค","ขอโทษที่ตอบช้านะคะ"],d:["yeah sure, whatever","no worries lol","bruh that's cap"],c:["ขอบคุณมากนะ ไว้เจอกัน","คิดถึงเธอ"]};
+const AUTO="อัตโนมัติ (ไทย ⇄ English)",hasThai=t=>/[\u0E00-\u0E7F]/.test(t);
+const S={mode:"t",lang:AUTO,aud:AUD[0],mood:MOOD[0],style:"Casual",picked:new Set([LANGS[0],LANGS[1],LANGS[2]]),back:true};
+function $(id){return document.getElementById(id)}
+const log=$("log");
+
+function sel(key,list){const s=document.createElement("select");s.setAttribute("aria-label",key);list.forEach(v=>{const o=document.createElement("option");o.textContent=v;if(S[key]===v)o.selected=true;s.appendChild(o)});s.onchange=()=>S[key]=s.value;return s}
+function chipRow(list,on,fn,host){list.forEach(v=>{const b=document.createElement("button");b.className="chip";b.textContent=v;b.setAttribute("aria-pressed",on(v));b.onclick=()=>{fn(v);b.setAttribute("aria-pressed",on(v));if(host)drawOpts()};host.appendChild(b)})}
+function drawOpts(){const o=$("opts");o.innerHTML="";
+ if(S.mode==="t"){o.append(sel("lang",[AUTO,...LANGS]),sel("aud",AUD),sel("mood",MOOD));chipRow(STYLES,v=>S.style===v,v=>{S.style=v},o);}
+ else if(S.mode==="c"){chipRow(LANGS,v=>S.picked.has(v),v=>S.picked.has(v)?S.picked.delete(v):S.picked.add(v),o);
+  const l=document.createElement("label");l.className="sm";l.style.flex="none";l.innerHTML='<input type="checkbox"> แปลกลับไทย';l.firstChild.checked=S.back;l.firstChild.onchange=e=>S.back=e.target.checked;o.appendChild(l)}
+ else{const p=document.createElement("span");p.className="sm";p.textContent="วางข้อความที่ได้รับมา แล้วดูว่าอีกฝ่ายหมายความว่าอะไร";o.appendChild(p)}}
+function drawEmpty(){log.innerHTML="";const e=document.createElement("div");e.className="empty";
+ e.innerHTML="<b>Translate anything.<br>Understand everything.</b>แปลให้ถูกอารมณ์ ไม่ใช่แค่ถูกคำ<div class='chips'></div>";
+ EX[S.mode].forEach(t=>{const b=document.createElement("button");b.className="chip";b.textContent=t;b.onclick=()=>send(t);e.lastChild.appendChild(b)});log.appendChild(e)}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;
+ document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+ $("src").placeholder=S.mode==="d"?"วางข้อความที่ได้รับมา...":"พิมพ์ข้อความ แล้วกด Enter...";drawOpts();if(!log.querySelector(".me"))drawEmpty()});
+
+async function copy(t,btn){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(_){}a.remove()}
+ const o=btn.textContent;btn.textContent="✓";setTimeout(()=>btn.textContent=o,1000)}
+function add(cls,text,cp){const d=document.createElement("div");d.className="m "+cls;d.append(document.createTextNode(text));
+ if(cp){const b=document.createElement("button");b.className="cp";b.textContent="Copy";b.onclick=()=>copy(text,b);d.appendChild(b)}log.appendChild(d);return d}
+function tag(t){const p=document.createElement("div");p.className="tag";p.textContent=t;log.appendChild(p)}
+const scroll=()=>log.scrollTo({top:log.scrollHeight,behavior:"smooth"});
+
+const RULE="ตอบเป็น JSON เท่านั้น ห้ามมีข้อความอื่นหรือ markdown. คำอธิบายทั้งหมดเป็นภาษาไทย.";
+function promptTxt(src,s){
+ if(s.mode==="t")return `${RULE}\nงาน: แปลข้อความนี้เป็น ${s.lang} ให้ฟังเป็นธรรมชาติแบบคนใช้จริงในแชท ไม่แปลตรงตัว\nข้อความ: """${src}"""\nสไตล์: ${s.style} | พูดกับ: ${s.aud} | อารมณ์: ${s.mood}\n${s.lang.startsWith("English")?(["Formal","Professional"].includes(s.style)?"ภาษาอังกฤษ: เขียนเต็มคำ ห้ามใช้คำย่อแชท":"ภาษาอังกฤษ: ใช้คำย่อแบบแชทที่คนพิมพ์จริงทั้งใน translation และ natural เช่น you→u, your→ur, are→r, why→y, please→pls, thanks→thx, because→cuz, to be honest→tbh, I don't know→idk, by the way→btw, going to→gonna, want to→wanna, miss you→miss u ใช้ตัวพิมพ์เล็กได้ตามความเหมาะสม แต่ต้องยังอ่านง่าย ไม่ย่อจนเสียความหมาย"):""}\nรูปแบบ: {"translation":"คำแปลสะอาดพร้อมส่ง","natural":"เวอร์ชันธรรมชาติที่คนพิมพ์จริง (ย่อ/อีโมจิได้ตามสไตล์)","tone":"อธิบายน้ำเสียงสั้นๆ เป็นไทย","alts":[{"text":"ตัวเลือกอื่น","mood":"อารมณ์ของตัวเลือกนี้ เป็นไทยสั้นๆ"}],"warning":"ถ้าอาจฟังหยาบ/ผิดกาลเทศะในวัฒนธรรมปลายทาง ให้เตือนสั้นๆ ไม่งั้นเว้นว่าง"} (alts 3-4 อัน)`;
+ if(s.mode==="d")return `${RULE}\nงาน: อธิบายว่าข้อความที่ผู้ใช้ได้รับนี้หมายความว่าอะไร รวมน้ำเสียงที่แฝงอยู่ในบริบทแชท\nข้อความ: """${src}"""\nรูปแบบ: {"literal":"แปลตรงตัวเป็นไทย","meaning":"ความหมายจริงในบริบทแชท","tone":"น้ำเสียง เช่น ประชด/เป็นมิตร/ไม่พอใจ พร้อมเหตุผลสั้นๆ","flags":[{"word":"คำ/วลี","type":"slang|swear|offensive|sexual|internet slang","level":0,"note":"ความหมายและความแรง"}],"replies":["ตัวอย่างข้อความตอบกลับ 2 แบบ ในภาษาเดียวกับข้อความต้นทาง"]} (level 0-3: 0=ไม่แรง 1=เบา 2=กลาง 3=แรง; flags ว่างได้)`;
+ return `${RULE}\nงาน: แปลข้อความนี้เป็นทุกภาษาที่ระบุ แบบเป็นธรรมชาติ ${s.back?"แล้วแปลแต่ละคำแปลกลับเป็นไทยตรงๆ เพื่อเช็กความหมาย":"ไม่ต้องแปลกลับ"}\nข้อความ: """${src}"""\nภาษา: ${JSON.stringify([...s.picked])}\nรูปแบบ: {"items":[{"lang":"ชื่อภาษาตามที่ให้","text":"คำแปล","back":"แปลกลับเป็นไทย หรือเว้นว่าง","drift":"ถ้าความหมายเพี้ยนจากต้นฉบับ บอกสั้นๆ ไม่งั้นเว้นว่าง"}]}`}
+
+function render(r,s){
+ if(s.mode==="t"){
+  tag(s.lang+" · "+s.style);add("bot main",r.translation,true);
+  if(r.natural&&r.natural!==r.translation){tag("Natural version");add("bot",r.natural,true)}
+  add("bot sm",r.tone);
+  if(r.warning)add("bot sm warn","⚠ "+r.warning);
+  if(r.alts&&r.alts.length){const a=document.createElement("div");a.className="alts";
+   r.alts.forEach(x=>{const b=document.createElement("button");b.textContent=x.text;const m=document.createElement("small");m.textContent=x.mood;b.appendChild(m);b.onclick=()=>copy(x.text,m);a.appendChild(b)});log.appendChild(a)}
+ }else if(s.mode==="d"){
+  tag("แปลตรงตัว");add("bot sm",r.literal);tag("ความหมายในบริบทแชท");add("bot main",r.meaning);add("bot sm","น้ำเสียง: "+r.tone);
+  const names=["ไม่แรง","เบา","กลาง","แรง"];
+  (r.flags||[]).forEach(f=>{const d=add("bot sm","");const b=document.createElement("span");b.className="badge l"+(f.level||0);b.textContent=(f.type||"")+" · "+names[f.level||0];d.append(b,document.createTextNode((f.word||"")+" — "+(f.note||"")))});
+  (r.replies||[]).forEach(t=>{tag("ตอบกลับได้ว่า");add("bot",t,true)});
+ }else{
+  (r.items||[]).forEach(it=>{tag(it.lang);add("bot main",it.text,true);
+   if(it.back)add("bot sm","กลับเป็นไทย: "+it.back);
+   if(it.drift)add("bot sm warn","⚠ "+it.drift)})}}
+
+let busy=false;
+async function send(text){
+ const src=(text??$("src").value).trim();if(!src||busy)return;
+ if(S.mode==="c"&&!S.picked.size){alert("เลือกอย่างน้อย 1 ภาษา");return}
+
+ const s={...S,picked:new Set(S.picked)};
+ if(s.mode==="t"&&s.lang===AUTO)s.lang=hasThai(src)?LANGS[0]:LANGS[5];
+ if(s.mode==="c"&&!hasThai(src))s.picked.add(LANGS[5]);
+ if(!log.querySelector(".me"))log.innerHTML="";
+ 
+ add("me",src);$("src").value="";$("src").style.height="";busy=true;$("send").disabled=true;
+ const t=add("bot","");t.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';scroll();
+ 
+ try{
+  const res = await fetch(PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: promptTxt(src, s) }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    })
+  });
+  
+  if(!res.ok) throw { code: "api_err", status: res.status };
+  const data = await res.json();
+  const jsonString = data.candidates[0].content.parts[0].text;
+  const r = JSON.parse(jsonString);
+  
+  t.remove();render(r,s);
+ }catch(e){
+  console.error(e);
+  t.remove();const d=document.createElement("div");d.className="err";
+  d.textContent="เกิดข้อผิดพลาดในการเชื่อมต่อหรือประมวลผลข้อมูล";
+  log.appendChild(d);
+ }
+ busy=false;$("send").disabled=false;scroll();$("src").focus();
+}
+
+const ta=$("src");
+ta.addEventListener("input",()=>{ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,130)+"px"});
+ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();send()}});
+$("send").onclick=()=>send();
+drawOpts();drawEmpty();
+</script>
+</body>
+</html>
