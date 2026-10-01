@@ -9,19 +9,18 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-# === ต้องมีส่วนนี้เป๊ะๆ นะครับ ===
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.json
     api_key = os.environ.get("GEMINI_API_KEY")
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    # เปลี่ยนตัวเลขตรงนี้เป็น 1.5 ครับ
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
     headers = {"Content-Type": "application/json"}
     response = requests.post(url, headers=headers, json=data)
     
     return jsonify(response.json()), response.status_code
-# ==============================
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
