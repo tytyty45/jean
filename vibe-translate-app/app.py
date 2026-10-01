@@ -4,7 +4,6 @@ import requests
 
 app = Flask(__name__)
 
-# หน้าแรกให้เสิร์ฟไฟล์ index.html
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -14,11 +13,18 @@ def chat():
     data = request.json
     api_key = os.environ.get("GEMINI_API_KEY")
     
-    # เปลี่ยนตัวเลขตรงนี้เป็น 1.5 ครับ
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # ลองใช้โมเดลเวอร์ชัน latest เพื่อป้องกันปัญหา URL ไม่แมตช์
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
     
     headers = {"Content-Type": "application/json"}
     response = requests.post(url, headers=headers, json=data)
+    
+    # === ระบบดักจับและปริ้นต์ Error จาก Google ลงใน Logs ===
+    if response.status_code != 200:
+        print("====================================")
+        print("GOOGLE ERROR CODE:", response.status_code)
+        print("GOOGLE ERROR MESSAGE:", response.text)
+        print("====================================")
     
     return jsonify(response.json()), response.status_code
 
